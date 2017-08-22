@@ -10,17 +10,18 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  User.findById(id)
-    .then(user => {
-      done(null, user);
-    })
+  User.findById(id).then(user => {
+    done(null, user);
+  });
 });
 
 passport.use(
-  new GoogleStrategy({
+  new GoogleStrategy(
+    {
       clientID: keys.googleClientID,
       clientSecret: keys.googleClientSecret,
-      callbackURL: "/auth/google/callback"
+      callbackURL: "/auth/google/callback",
+      proxy: true
     },
     (accessToken, refreshToken, profile, done) => {
       User.findOne({
@@ -31,7 +32,9 @@ passport.use(
         } else {
           new User({
             googleId: profile.id
-          }).save().then(user => done(null, user));
+          })
+            .save()
+            .then(user => done(null, user));
         }
       });
     }
